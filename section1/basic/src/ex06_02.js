@@ -1,4 +1,4 @@
-// ex04 - light(광원)
+// ex06_02 - 애니메이션 + 성능보정 (방법 2)
 
 import * as THREE from 'three';
 
@@ -34,8 +34,6 @@ export default function example() {
   );
 
   camera.position.z = 5;
-  camera.position.y = 2;
-  camera.position.x = 2;
   scene.add(camera);
 
   const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -55,7 +53,28 @@ export default function example() {
   scene.add(mesh);
 
   //그리기
-  renderer.render(scene, camera);
+  let oldTime = Date.now();
+
+  function draw() {
+    const newTime = Date.now();
+    const deltaTime = newTime - oldTime;
+    oldTime = newTime;
+    //각도는 Radian을 사용
+    //360도는 2파이
+    // mesh.rotation.y += 0.1;
+    // mesh.rotation.y += THREE.MathUtils.degToRad(1);
+    // const delta = clock.getDelta(); //이전 draw 실행했을 때와 시간 차
+    mesh.rotation.y += deltaTime * 0.001;
+    mesh.position.y += deltaTime * 0.001;
+    if (mesh.position.y > 3) {
+      mesh.position.y = 0;
+    }
+    renderer.render(scene, camera);
+
+    // 같은 기능
+    // window.requestAnimationFrame(draw);
+    renderer.setAnimationLoop(draw);
+  }
 
   function setSize() {
     //카메라
@@ -67,4 +86,6 @@ export default function example() {
 
   //이벤트
   window.addEventListener('resize', setSize);
+
+  draw();
 }
