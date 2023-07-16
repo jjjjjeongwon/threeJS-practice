@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: 텍스처 변환하기
+// ----- 주제: 여러 이미지 텍스쳐가 적용된 큐브
 
 export default function example() {
   //텍스처 이미지 로드
@@ -20,30 +20,28 @@ export default function example() {
   };
 
   const textureLoader = new THREE.TextureLoader(loadingManager);
-  const texture = textureLoader.load(
-    '/textures/skull/Ground Skull_basecolor.jpg'
-  );
+  const rightTexture = textureLoader.load('/textures/mcstyle/right.png');
+  const leftTexture = textureLoader.load('/textures/mcstyle/left.png');
+  const topTexture = textureLoader.load('/textures/mcstyle/top.png');
+  const bottomTexture = textureLoader.load('/textures/mcstyle/bottom.png');
+  const frontTexture = textureLoader.load('/textures/mcstyle/front.png');
+  const backTexture = textureLoader.load('/textures/mcstyle/back.png');
 
-  //텍스처 변환
-  //텍스처 밀림현상 방지
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
+  const materials = [
+    new THREE.MeshBasicMaterial({ map: rightTexture }),
+    new THREE.MeshBasicMaterial({ map: leftTexture }),
+    new THREE.MeshBasicMaterial({ map: topTexture }),
+    new THREE.MeshBasicMaterial({ map: bottomTexture }),
+    new THREE.MeshBasicMaterial({ map: frontTexture }),
+    new THREE.MeshBasicMaterial({ map: backTexture }),
+  ];
 
-  //텍스처 위치 이동
-  // texture.offset.x = 0.3;
-  // texture.offset.y = 0.3;
-
-  //텍스처 반복 적용
-  // texture.repeat.x = 2;
-  // texture.repeat.y = 2;
-
-  //텍스처 회전
-  texture.rotation = Math.PI * 0.25;
-  // texture.rotation = THREE.MathUtils.degToRad(30);
-
-  // 회전 기준점 설정(여기서는 해골의 얼굴)
-  texture.center.x = 0.5;
-  texture.center.y = 0.5;
+  rightTexture.magFilter = THREE.NearestFilter;
+  leftTexture.magFilter = THREE.NearestFilter;
+  topTexture.magFilter = THREE.NearestFilter;
+  bottomTexture.magFilter = THREE.NearestFilter;
+  frontTexture.magFilter = THREE.NearestFilter;
+  backTexture.magFilter = THREE.NearestFilter;
 
   // Renderer
   const canvas = document.querySelector('#three-canvas');
@@ -81,10 +79,8 @@ export default function example() {
 
   // Mesh
   const geometry = new THREE.BoxGeometry(2, 2, 2);
-  const material = new THREE.MeshStandardMaterial({
-    map: texture,
-  });
-  const mesh = new THREE.Mesh(geometry, material);
+
+  const mesh = new THREE.Mesh(geometry, materials);
 
   scene.add(mesh);
 
