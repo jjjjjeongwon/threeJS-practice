@@ -61,7 +61,12 @@ export default function example() {
   const clock = new THREE.Clock();
 
   function draw() {
-    const delta = clock.getDelta();
+    const time = clock.getElapsedTime() * 30;
+
+    for (let i = 0; i < positionArray.length; i += 3) {
+      positionArray[i] += Math.sin(time) * 0.002;
+    }
+    geometry.attributes.position.needsUpdate = true;
 
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
