@@ -43,8 +43,9 @@ export default function example() {
   // gltf loader
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(
-    '/models/ilbuni.glb',
+    '/models/yoshi.glb',
     (gltf) => {
+      console.log(gltf);
       const ilbunMesh = gltf.scene.children[0];
       scene.add(ilbunMesh);
     }
