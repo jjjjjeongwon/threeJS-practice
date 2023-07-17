@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ImagePanel } from './ImagePanel';
+import gsap from 'gsap';
 
 // ----- 주제: 형태가 바뀌는 이미지 패널
 
@@ -46,22 +47,28 @@ export default function example() {
 
   // Points
   const sphereGeometry = new THREE.SphereGeometry(1, 8, 8);
-  const positionArray = sphereGeometry.attributes.position.array;
+  const spherePositionArray = sphereGeometry.attributes.position.array;
+  const randomPositionArray = [];
+  for (let i = 0; i < spherePositionArray.length; i++) {
+    randomPositionArray.push((Math.random() - 0.5) * 10);
+  }
 
   const textureLoader = new THREE.TextureLoader();
 
   //여러개의 Plain Mesh 설정
+  const imagePanels = [];
   let imagePanel;
-  for (let i = 0; i < positionArray.length; i += 3) {
+  for (let i = 0; i < spherePositionArray.length; i += 3) {
     imagePanel = new ImagePanel({
       textureLoader: textureLoader,
       scene,
       geometry: planeGeometry,
       imageSrc: `/images/0${Math.ceil(Math.random() * 5)}.jpg`,
-      x: positionArray[i],
-      y: positionArray[i + 1],
-      z: positionArray[i + 2],
+      x: spherePositionArray[i],
+      y: spherePositionArray[i + 1],
+      z: spherePositionArray[i + 2],
     });
+    imagePanels.push(imagePanel);
   }
 
   // 그리기
@@ -83,7 +90,65 @@ export default function example() {
     renderer.render(scene, camera);
   }
 
+  function setShape(e) {
+    // console.log(e.target);
+    let array;
+    const type = e.target.dataset.type;
+    switch (type) {
+      case 'random':
+        array = randomPositionArray;
+        break;
+      case 'sphere':
+        array = spherePositionArray;
+        break;
+    }
+    for (let i = 0; i < imagePanels.length; i++) {
+      gsap.to(imagePanels[i].mesh.position, {
+        duration: 2,
+        x: array[i * 3],
+        y: array[i * 3 + 1],
+        z: array[i * 3 + 2],
+      });
+
+      //회전
+      if (type === 'random') {
+        gsap.to(imagePanels[i].mesh.rotation, {
+          duration: 2,
+          x: 0,
+          y: 0,
+          z: 0,
+        });
+      } else if (type === 'sphere') {
+        gsap.to(imagePanels[i].mesh.rotation, {
+          duration: 2,
+          x: imagePanels[i].sphereRotationX,
+          y: imagePanels[i].sphereRotationY,
+          z: imagePanels[i].sphereRotationZ,
+        });
+      }
+    }
+  }
+
+  //버튼
+  const btnWrapper = document.createElement('div');
+  btnWrapper.classList.add('btns');
+
+  const randomBtn = document.createElement('button');
+  randomBtn.dataset.type = 'random';
+  randomBtn.style.cssText = 'position: absolute; left:20px; top:20px;';
+  randomBtn.innerHTML = 'Random';
+  btnWrapper.append(randomBtn);
+
+  const sphereBtn = document.createElement('button');
+  sphereBtn.dataset.type = 'sphere';
+  sphereBtn.style.cssText = 'position: absolute; left:20px; top:50px;';
+  sphereBtn.innerHTML = 'Sphere';
+  btnWrapper.append(sphereBtn);
+
+  document.body.append(btnWrapper);
+
   // 이벤트
+  btnWrapper.addEventListener('click', setShape);
   window.addEventListener('resize', setSize);
 
   draw();
